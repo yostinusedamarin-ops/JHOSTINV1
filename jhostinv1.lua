@@ -1,6 +1,10 @@
+--// 🔥 JHOSTIN PREMIUM V4 🔥
+--// MENU BONITO + BOLITAS + TOGGLE GOD 😮‍💨
+
 local player = game.Players.LocalPlayer
-if player.PlayerGui:FindFirstChild("JHOSTIN_FULL") then
-	player.PlayerGui:FindFirstChild("JHOSTIN_FULL"):Destroy()
+
+if player.PlayerGui:FindFirstChild("JHOSTIN_PREMIUM") then
+	player.PlayerGui:FindFirstChild("JHOSTIN_PREMIUM"):Destroy()
 end
 
 local char = player.Character or player.CharacterAdded:Wait()
@@ -8,214 +12,284 @@ local humanoid = char:WaitForChild("Humanoid")
 
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
 
--- ✈️ FLY
+-------------------------------------------------
+-- VARIABLES
+-------------------------------------------------
+
 local fly = false
-local flySpeed = 120
+local noclip = false
+local sprintOn = false
+local AntiAFK = true
+local FPSBoost = false
+
+local flySpeed = 80
 local maxFlySpeed = 500
 
--- 🏃 RUN
 local walkSpeed = 16
 local maxWalkSpeed = 5000
-local sprintOn = false
 
--- 📍 TP
 local savedPos = nil
-local marker = nil
 
 local bv
 local bg
 
+-------------------------------------------------
+-- ANTI AFK
+-------------------------------------------------
+
+player.Idled:Connect(function()
+	if AntiAFK then
+		VirtualUser:CaptureController()
+		VirtualUser:ClickButton2(Vector2.new())
+	end
+end)
+
+-------------------------------------------------
 -- GUI
+-------------------------------------------------
+
 local gui = Instance.new("ScreenGui")
-gui.Name = "JHOSTIN_FULL"
+gui.Name = "JHOSTIN_PREMIUM"
 gui.Parent = player.PlayerGui
 gui.ResetOnSpawn = false
 
--- TOGGLE BUTTON
+-------------------------------------------------
+-- BOTON MENU
+-------------------------------------------------
+
 local toggle = Instance.new("TextButton")
 toggle.Parent = gui
-toggle.Size = UDim2.new(0,80,0,80)
-toggle.Position = UDim2.new(0,20,0.5,0)
-toggle.Text = "Y" 
+toggle.Size = UDim2.new(0,65,0,65)
+toggle.Position = UDim2.new(0,20,0.4,0)
+toggle.Text = "💀"
 toggle.TextScaled = true
 toggle.Font = Enum.Font.GothamBlack
-toggle.BackgroundColor3 = Color3.fromRGB(10,10,15)
-toggle.TextColor3 = Color3.fromRGB(0,170,255)
+toggle.BackgroundColor3 = Color3.fromRGB(15,15,20)
+toggle.TextColor3 = Color3.fromRGB(255,0,120)
 toggle.Active = true
 toggle.Draggable = true
+toggle.ZIndex = 10
+
 Instance.new("UICorner", toggle).CornerRadius = UDim.new(1,0)
 
+local toggleStroke = Instance.new("UIStroke",toggle)
+toggleStroke.Color = Color3.fromRGB(255,0,120)
+toggleStroke.Thickness = 2
+
+-------------------------------------------------
 -- FRAME
+-------------------------------------------------
+
 local frame = Instance.new("Frame")
 frame.Parent = gui
-frame.Size = UDim2.new(0,420,0,650)
-frame.Position = UDim2.new(0,90,0.15,0)
-frame.BackgroundColor3 = Color3.fromRGB(5,5,10)
+frame.Size = UDim2.new(0,430,0,790)
+frame.Position = UDim2.new(0.08,0,0.08,0)
+frame.BackgroundColor3 = Color3.fromRGB(10,10,15)
 frame.Active = true
 frame.Draggable = true
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
+frame.ClipsDescendants = true
 
--- TITLE
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,16)
+
+local stroke = Instance.new("UIStroke",frame)
+stroke.Color = Color3.fromRGB(255,0,120)
+stroke.Thickness = 2
+
+-------------------------------------------------
+-- 🔵 BOLITAS REBOTANDO 🔵
+-------------------------------------------------
+
+for i = 1,20 do
+
+	local ball = Instance.new("Frame")
+	ball.Parent = frame
+	ball.Size = UDim2.new(0,math.random(8,20),0,math.random(8,20))
+	ball.Position = UDim2.new(math.random(),0,math.random(),0)
+	ball.BackgroundColor3 = Color3.fromRGB(0,170,255)
+	ball.BackgroundTransparency = 0.35
+	ball.ZIndex = 0
+
+	local corner = Instance.new("UICorner",ball)
+	corner.CornerRadius = UDim.new(1,0)
+
+	local speedX = math.random(-3,3)
+	local speedY = math.random(-3,3)
+
+	task.spawn(function()
+
+		while ball.Parent do
+
+			local pos = ball.Position
+
+			local newX = pos.X.Scale + (speedX * 0.0015)
+			local newY = pos.Y.Scale + (speedY * 0.0015)
+
+			if newX <= 0 or newX >= 0.95 then
+				speedX = -speedX
+			end
+
+			if newY <= 0 or newY >= 0.95 then
+				speedY = -speedY
+			end
+
+			ball.Position = UDim2.new(newX,0,newY,0)
+
+			RunService.RenderStepped:Wait()
+		end
+	end)
+end
+
+-------------------------------------------------
+-- TITULO
+-------------------------------------------------
+
 local title = Instance.new("TextLabel")
 title.Parent = frame
 title.Size = UDim2.new(1,0,0,70)
 title.BackgroundTransparency = 1
-title.Text = "JHOSTIN V1.5"
+title.Text = "🔥 JHOSTIN PREMIUM 🔥"
 title.TextScaled = true
 title.Font = Enum.Font.GothamBlack
-title.TextColor3 = Color3.fromRGB(0,170,255)
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.ZIndex = 5
 
 -------------------------------------------------
--- 🧱 NOCLIP
--------------------------------------------------
-local noclipBtn = Instance.new("TextButton")
-noclipBtn.Parent = frame
-noclipBtn.Size = UDim2.new(0,380,0,50)
-noclipBtn.Position = UDim2.new(0,20,0,80)
-noclipBtn.Text = "NOCLIP OFF"
-noclipBtn.TextScaled = true
-noclipBtn.Font = Enum.Font.GothamBold
-
--------------------------------------------------
--- 💜 FLY
--------------------------------------------------
-local flyBox = Instance.new("Frame")
-flyBox.Parent = frame
-flyBox.Size = UDim2.new(0,380,0,170)
-flyBox.Position = UDim2.new(0,20,0,140)
-flyBox.BackgroundColor3 = Color3.fromRGB(40,15,70)
-Instance.new("UICorner", flyBox).CornerRadius = UDim.new(0,10)
-
-local flyTitle = Instance.new("TextLabel")
-flyTitle.Parent = flyBox
-flyTitle.Size = UDim2.new(1,0,0,30)
-flyTitle.Text = "✈ FLY CONTROL"
-flyTitle.TextScaled = true
-flyTitle.Font = Enum.Font.GothamBlack
-flyTitle.TextColor3 = Color3.fromRGB(200,120,255)
-flyTitle.BackgroundTransparency = 1
-
-local flyBtn = Instance.new("TextButton")
-flyBtn.Parent = flyBox
-flyBtn.Size = UDim2.new(0,360,0,40)
-flyBtn.Position = UDim2.new(0,10,0,40)
-flyBtn.Text = "FLY OFF"
-flyBtn.TextScaled = true
-
-local flyLabel = Instance.new("TextLabel")
-flyLabel.Parent = flyBox
-flyLabel.Size = UDim2.new(1,0,0,25)
-flyLabel.Position = UDim2.new(0,0,0,85)
-flyLabel.Text = "FLY SPEED: "..flySpeed
-flyLabel.TextScaled = true
-flyLabel.BackgroundTransparency = 1
-
-local flyPlus = Instance.new("TextButton")
-flyPlus.Parent = flyBox
-flyPlus.Size = UDim2.new(0,180,0,40)
-flyPlus.Position = UDim2.new(0,10,0,115)
-flyPlus.Text = "+ SPEED"
-
-local flyMinus = Instance.new("TextButton")
-flyMinus.Parent = flyBox
-flyMinus.Size = UDim2.new(0,180,0,40)
-flyMinus.Position = UDim2.new(0,200,0,115)
-flyMinus.Text = "- SPEED"
-
--------------------------------------------------
--- 💙 RUN BOX
--------------------------------------------------
-local runBox = Instance.new("Frame")
-runBox.Parent = frame
-runBox.Size = UDim2.new(0,380,0,150)
-runBox.Position = UDim2.new(0,20,0,320)
-runBox.BackgroundColor3 = Color3.fromRGB(10,50,90)
-Instance.new("UICorner", runBox).CornerRadius = UDim.new(0,10)
-
-local runTitle = Instance.new("TextLabel")
-runTitle.Parent = runBox
-runTitle.Size = UDim2.new(1,0,0,30)
-runTitle.Text = "🏃 RUN SPEED"
-runTitle.TextScaled = true
-runTitle.Font = Enum.Font.GothamBlack
-runTitle.TextColor3 = Color3.fromRGB(0,200,255)
-runTitle.BackgroundTransparency = 1
-
-local walkLabel = Instance.new("TextLabel")
-walkLabel.Parent = runBox
-walkLabel.Size = UDim2.new(1,0,0,25)
-walkLabel.Position = UDim2.new(0,0,0,30)
-walkLabel.Text = "WALK SPEED: "..walkSpeed
-walkLabel.TextScaled = true
-walkLabel.BackgroundTransparency = 1
-
-local walkPlus = Instance.new("TextButton")
-walkPlus.Parent = runBox
-walkPlus.Size = UDim2.new(0,180,0,40)
-walkPlus.Position = UDim2.new(0,10,0,70)
-walkPlus.Text = "+ RUN"
-
-local walkMinus = Instance.new("TextButton")
-walkMinus.Parent = runBox
-walkMinus.Size = UDim2.new(0,180,0,40)
-walkMinus.Position = UDim2.new(0,200,0,70)
-walkMinus.Text = "- RUN"
-
-local sprintBtn = Instance.new("TextButton")
-sprintBtn.Parent = runBox
-sprintBtn.Size = UDim2.new(0,360,0,35)
-sprintBtn.Position = UDim2.new(0,10,0,115)
-sprintBtn.Text = "SPRINT OFF"
-
--------------------------------------------------
--- 💚 TP BOX
--------------------------------------------------
-local tpBox = Instance.new("Frame")
-tpBox.Parent = frame
-tpBox.Size = UDim2.new(0,380,0,170)
-tpBox.Position = UDim2.new(0,20,0,480)
-tpBox.BackgroundColor3 = Color3.fromRGB(10,90,50)
-Instance.new("UICorner", tpBox).CornerRadius = UDim.new(0,10)
-
-local tpTitle = Instance.new("TextLabel")
-tpTitle.Parent = tpBox
-tpTitle.Size = UDim2.new(1,0,0,30)
-tpTitle.Text = "📍 TELEPORT SYSTEM"
-tpTitle.TextScaled = true
-tpTitle.Font = Enum.Font.GothamBlack
-tpTitle.TextColor3 = Color3.fromRGB(0,255,150)
-tpTitle.BackgroundTransparency = 1
-
-local markBtn = Instance.new("TextButton")
-markBtn.Parent = tpBox
-markBtn.Size = UDim2.new(0,180,0,40)
-markBtn.Position = UDim2.new(0,10,0,50)
-markBtn.Text = "MARCAR"
-
-local tpBtn = Instance.new("TextButton")
-tpBtn.Parent = tpBox
-tpBtn.Size = UDim2.new(0,180,0,40)
-tpBtn.Position = UDim2.new(0,200,0,50)
-tpBtn.Text = "TELEPORT"
-
-local removeMark = Instance.new("TextButton")
-removeMark.Parent = tpBox
-removeMark.Size = UDim2.new(0,360,0,40)
-removeMark.Position = UDim2.new(0,10,0,100)
-removeMark.Text = "❌ QUITAR MARCA"
-
--------------------------------------------------
--- LOGICA
+-- TOGGLE MENU
 -------------------------------------------------
 
 toggle.MouseButton1Click:Connect(function()
+
 	frame.Visible = not frame.Visible
+
+	if frame.Visible then
+		toggle.Text = "❌"
+	else
+		toggle.Text = "💀"
+	end
 end)
 
+-------------------------------------------------
+-- FUNCION BOTONES
+-------------------------------------------------
+
+local function createButton(parent,text,pos,color)
+
+	local btn = Instance.new("TextButton")
+	btn.Parent = parent
+	btn.Size = UDim2.new(0,380,0,42)
+	btn.Position = pos
+	btn.Text = text
+	btn.TextScaled = true
+	btn.Font = Enum.Font.GothamBold
+	btn.BackgroundColor3 = color
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.ZIndex = 5
+
+	Instance.new("UICorner",btn).CornerRadius = UDim.new(0,12)
+
+	local st = Instance.new("UIStroke",btn)
+	st.Color = Color3.fromRGB(255,255,255)
+
+	btn.MouseEnter:Connect(function()
+		TweenService:Create(btn,TweenInfo.new(0.15),{
+			BackgroundTransparency = 0.15
+		}):Play()
+	end)
+
+	btn.MouseLeave:Connect(function()
+		TweenService:Create(btn,TweenInfo.new(0.15),{
+			BackgroundTransparency = 0
+		}):Play()
+	end)
+
+	return btn
+end
+
+-------------------------------------------------
+-- FPS
+-------------------------------------------------
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Parent = frame
+fpsLabel.Size = UDim2.new(0,380,0,40)
+fpsLabel.Position = UDim2.new(0,25,0,80)
+fpsLabel.BackgroundColor3 = Color3.fromRGB(15,25,15)
+fpsLabel.TextColor3 = Color3.fromRGB(0,255,100)
+fpsLabel.TextScaled = true
+fpsLabel.Font = Enum.Font.GothamBlack
+fpsLabel.ZIndex = 5
+
+Instance.new("UICorner",fpsLabel).CornerRadius = UDim.new(0,12)
+
+local fpsFrames = 0
+local fpsTime = tick()
+
+RunService.RenderStepped:Connect(function()
+	fpsFrames += 1
+
+	if tick() - fpsTime >= 1 then
+		fpsLabel.Text = "🎮 FPS : "..fpsFrames
+		fpsFrames = 0
+		fpsTime = tick()
+	end
+end)
+
+-------------------------------------------------
+-- FUNCIONES
+-------------------------------------------------
+
+local function BoostFPS(state)
+
+	if state then
+
+		Lighting.GlobalShadows = false
+		Lighting.FogEnd = 999999
+		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+		for _,v in pairs(game:GetDescendants()) do
+
+			if v:IsA("BasePart") then
+				v.Material = Enum.Material.Plastic
+				v.Reflectance = 0
+			end
+
+			if v:IsA("Texture") or v:IsA("Decal") then
+				v.Transparency = 1
+			end
+
+			if v:IsA("ParticleEmitter")
+			or v:IsA("Trail")
+			or v:IsA("Smoke")
+			or v:IsA("Fire") then
+				v.Enabled = false
+			end
+		end
+	end
+end
+
+-------------------------------------------------
+-- BOTONES
+-------------------------------------------------
+
+local noclipBtn = createButton(frame,"👻 NOCLIP OFF",UDim2.new(0,25,0,135),Color3.fromRGB(40,40,40))
+local afkBtn = createButton(frame,"😴 ANTI AFK ON",UDim2.new(0,25,0,190),Color3.fromRGB(90,60,20))
+local fpsBtn = createButton(frame,"🚀 FPS BOOST OFF",UDim2.new(0,25,0,245),Color3.fromRGB(20,60,90))
+local flyBtn = createButton(frame,"✈️ FLY OFF",UDim2.new(0,25,0,300),Color3.fromRGB(80,40,120))
+
+-------------------------------------------------
+-- NOCLIP
+-------------------------------------------------
+
 RunService.Stepped:Connect(function()
+
 	if noclip and player.Character then
+
 		for _,v in pairs(player.Character:GetDescendants()) do
+
 			if v:IsA("BasePart") then
 				v.CanCollide = false
 			end
@@ -224,17 +298,65 @@ RunService.Stepped:Connect(function()
 end)
 
 noclipBtn.MouseButton1Click:Connect(function()
+
 	noclip = not noclip
-	noclipBtn.Text = noclip and "NOCLIP ON" or "NOCLIP OFF"
+
+	noclipBtn.Text = noclip and "👻 NOCLIP ON" or "👻 NOCLIP OFF"
 end)
 
+-------------------------------------------------
+-- AFK
+-------------------------------------------------
+
+afkBtn.MouseButton1Click:Connect(function()
+
+	AntiAFK = not AntiAFK
+
+	afkBtn.Text = AntiAFK and "😴 ANTI AFK ON" or "💀 ANTI AFK OFF"
+end)
+
+-------------------------------------------------
+-- FPS BOOST
+-------------------------------------------------
+
+fpsBtn.MouseButton1Click:Connect(function()
+
+	FPSBoost = not FPSBoost
+
+	fpsBtn.Text = FPSBoost and "🚀 FPS BOOST ON" or "🚀 FPS BOOST OFF"
+
+	BoostFPS(FPSBoost)
+end)
+
+-------------------------------------------------
+-- FLY
+-------------------------------------------------
+
+local flyLabel = Instance.new("TextLabel")
+flyLabel.Parent = frame
+flyLabel.Size = UDim2.new(0,380,0,35)
+flyLabel.Position = UDim2.new(0,25,0,350)
+flyLabel.BackgroundTransparency = 1
+flyLabel.Text = "FLY SPEED : "..flySpeed
+flyLabel.TextScaled = true
+flyLabel.Font = Enum.Font.GothamBold
+flyLabel.TextColor3 = Color3.fromRGB(220,180,255)
+flyLabel.ZIndex = 5
+
+local flyPlus = createButton(frame,"➕ FLY SPEED",UDim2.new(0,25,0,390),Color3.fromRGB(120,60,180))
+local flyMinus = createButton(frame,"➖ FLY SPEED",UDim2.new(0,25,0,440),Color3.fromRGB(90,40,140))
+
 flyBtn.MouseButton1Click:Connect(function()
+
 	fly = not fly
+
 	char = player.Character or player.CharacterAdded:Wait()
 	humanoid = char:WaitForChild("Humanoid")
+
 	local hrp = char:WaitForChild("HumanoidRootPart")
 
 	if fly then
+
 		bv = Instance.new("BodyVelocity")
 		bv.MaxForce = Vector3.new(1e9,1e9,1e9)
 		bv.Parent = hrp
@@ -244,19 +366,28 @@ flyBtn.MouseButton1Click:Connect(function()
 		bg.Parent = hrp
 
 		humanoid.PlatformStand = true
-		flyBtn.Text = "FLY ON"
+
+		flyBtn.Text = "✈️ FLY ON"
+
 	else
+
 		humanoid.PlatformStand = false
+
 		if bv then bv:Destroy() end
 		if bg then bg:Destroy() end
-		flyBtn.Text = "FLY OFF"
+
+		flyBtn.Text = "✈️ FLY OFF"
 	end
 end)
 
 RunService.RenderStepped:Connect(function()
+
 	if fly then
+
 		local hrp = char:FindFirstChild("HumanoidRootPart")
+
 		if hrp and bv and bg then
+
 			local cam = workspace.CurrentCamera
 			local move = Vector3.zero
 
@@ -274,40 +405,95 @@ RunService.RenderStepped:Connect(function()
 end)
 
 flyPlus.MouseButton1Click:Connect(function()
-	if flySpeed < maxFlySpeed then flySpeed += 20 flyLabel.Text = "FLY SPEED: "..flySpeed end
+
+	if flySpeed < maxFlySpeed then
+		flySpeed += 20
+		flyLabel.Text = "FLY SPEED : "..flySpeed
+	end
 end)
 
 flyMinus.MouseButton1Click:Connect(function()
-	if flySpeed > 10 then flySpeed -= 20 flyLabel.Text = "FLY SPEED: "..flySpeed end
+
+	if flySpeed > 20 then
+		flySpeed -= 20
+		flyLabel.Text = "FLY SPEED : "..flySpeed
+	end
 end)
 
+-------------------------------------------------
+-- RUN
+-------------------------------------------------
+
+local walkLabel = Instance.new("TextLabel")
+walkLabel.Parent = frame
+walkLabel.Size = UDim2.new(0,380,0,35)
+walkLabel.Position = UDim2.new(0,25,0,500)
+walkLabel.BackgroundTransparency = 1
+walkLabel.Text = "RUN SPEED : "..walkSpeed
+walkLabel.TextScaled = true
+walkLabel.Font = Enum.Font.GothamBold
+walkLabel.TextColor3 = Color3.fromRGB(120,220,255)
+walkLabel.ZIndex = 5
+
+local walkPlus = createButton(frame,"🏃 + RUN",UDim2.new(0,25,0,540),Color3.fromRGB(20,100,140))
+local walkMinus = createButton(frame,"🐢 - RUN",UDim2.new(0,25,0,590),Color3.fromRGB(20,60,100))
+local sprintBtn = createButton(frame,"⚡ SPRINT OFF",UDim2.new(0,25,0,640),Color3.fromRGB(0,140,255))
+
 walkPlus.MouseButton1Click:Connect(function()
-	if walkSpeed < maxWalkSpeed then walkSpeed += 50 humanoid.WalkSpeed = walkSpeed walkLabel.Text = "WALK SPEED: "..walkSpeed end
+
+	if walkSpeed < maxWalkSpeed then
+
+		walkSpeed += 50
+		humanoid.WalkSpeed = walkSpeed
+		walkLabel.Text = "RUN SPEED : "..walkSpeed
+	end
 end)
 
 walkMinus.MouseButton1Click:Connect(function()
-	if walkSpeed > 16 then walkSpeed -= 50 humanoid.WalkSpeed = walkSpeed walkLabel.Text = "WALK SPEED: "..walkSpeed end
+
+	if walkSpeed > 16 then
+
+		walkSpeed -= 50
+		humanoid.WalkSpeed = walkSpeed
+		walkLabel.Text = "RUN SPEED : "..walkSpeed
+	end
 end)
 
 sprintBtn.MouseButton1Click:Connect(function()
+
 	sprintOn = not sprintOn
+
 	humanoid.WalkSpeed = sprintOn and walkSpeed or 16
-	sprintBtn.Text = sprintOn and "SPRINT ON" or "SPRINT OFF"
+
+	sprintBtn.Text = sprintOn and "⚡ SPRINT ON" or "⚡ SPRINT OFF"
 end)
 
+-------------------------------------------------
+-- TP
+-------------------------------------------------
+
+local markBtn = createButton(frame,"📍 MARCAR POS",UDim2.new(0,25,0,700),Color3.fromRGB(20,120,60))
+markBtn.Size = UDim2.new(0,180,0,42)
+
+local tpBtn = createButton(frame,"🌀 TELEPORT",UDim2.new(0,225,0,700),Color3.fromRGB(20,180,100))
+tpBtn.Size = UDim2.new(0,180,0,42)
+
 markBtn.MouseButton1Click:Connect(function()
+
 	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-	if hrp then savedPos = hrp.Position end
+
+	if hrp then
+		savedPos = hrp.Position
+	end
 end)
 
 tpBtn.MouseButton1Click:Connect(function()
+
 	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
 	if hrp and savedPos then
 		hrp.CFrame = CFrame.new(savedPos + Vector3.new(0,3,0))
 	end
 end)
 
-removeMark.MouseButton1Click:Connect(function()
-	savedPos = nil
-	if marker then marker:Destroy() marker = nil end
-end)
+print("🔥 MENU GOD CARGADO YA QUEDÓ BIEN SEXY JAJA")
