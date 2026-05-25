@@ -496,4 +496,4 @@ tpBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
-print("🔥 MENU GOD CARGADO YA QUEDÓ BIEN SEXY JAJA")
+print("🔥 MENU GOD CARGADO YA QUEDÓ BIEN JAJA")
